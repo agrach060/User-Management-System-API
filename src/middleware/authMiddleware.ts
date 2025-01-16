@@ -10,17 +10,25 @@ export const authenticate = (
     res: Response,
     next: NextFunction
 ): void => {
-    const token = req.headers.authorization?.split(" ")[1];
-    if (!token) {
-        res.status(401).json({ error: "Unauthorized" });
-        return;
-    }
-
     try {
-        const decoded = jwt.verify(token, "secret") as { id: number };
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+            const error = new Error("Authorization header missing or malformed");
+            (error as any).status = 401;
+            throw error;
+        }
+
+        const token = authHeader.split(" ")[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: number };
         req.user = decoded;
         next();
-    } catch {
-        res.status(401).json({ error: "Invalid token" });
+    } catch (error: any) {
+        if (error.name === "JsonWebTokenError") {
+            res.status(401).json({ error: "Invalid token" });
+        } else if (error.name === "TokenExpiredError") {
+            res.status(401).json({ error: "Token expired" });
+        } else {
+            res.status(error.status || 500).json({ error: error.message || "Internal server error" });
+        }
     }
 };
