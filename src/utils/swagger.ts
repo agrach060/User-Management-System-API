@@ -57,9 +57,6 @@ export const swagger: OpenAPIV3.Document = {
                     "201": {
                         description: "User registered successfully",
                     },
-                    "400": {
-                        description: "Validation error",
-                    },
                     "500": {
                         description: "Internal server error",
                     },
@@ -173,9 +170,6 @@ export const swagger: OpenAPIV3.Document = {
                 responses: {
                     "200": {
                         description: "Profile updated successfully",
-                    },
-                    "400": {
-                        description: "Validation error",
                     },
                     "401": {
                         description: "Unauthorized, token is missing or invalid",
